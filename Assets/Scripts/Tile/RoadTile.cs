@@ -1,11 +1,18 @@
-using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEditor.Rendering.ShadowCascadeGUI;
+using UnityEditor.Experimental.GraphView;
+
+
+// 전처리기
+// UNITY_EDITOR가 define되어 있으면 #if ~ #endif까지가 컴파일 할 때 포함됨
+#if UNITY_EDITOR 
+using UnityEditor;
+#endif
+
 public class RoadTile : Tile
 {
     // 주변 어느 위치에 RoadTile이 있는지 표시해주는 enum
@@ -77,11 +84,63 @@ public class RoadTile : Tile
 
     private int GetIndex(AdjTilePosition mask)
     {
-        return 0;
+        int index = -1;
+
+        switch (mask)
+        {
+            case AdjTilePosition.None:
+            case AdjTilePosition.North:
+            case AdjTilePosition.East:
+            case AdjTilePosition.South:
+            case AdjTilePosition.West:
+            case AdjTilePosition.East | AdjTilePosition.West:
+            case AdjTilePosition.North | AdjTilePosition.South:
+                index = 0;  // 1자 모양의 스프라이트
+                break;
+            case AdjTilePosition.South | AdjTilePosition.West:
+            case AdjTilePosition.West | AdjTilePosition.North:
+            case AdjTilePosition.North | AdjTilePosition.East:
+            case AdjTilePosition.East | AdjTilePosition.South:
+                index = 1;    // ㄱ자 모양의 스프라이트
+                break;
+            case AdjTilePosition.All & ~AdjTilePosition.North:  // 0000 1111 & ~ 0000 0001 = 0000 1111 & ~ 1111 1110 = 0000 1110
+            case AdjTilePosition.All & ~AdjTilePosition.East:
+            case AdjTilePosition.All & ~AdjTilePosition.South:
+            case AdjTilePosition.All & ~AdjTilePosition.West:
+                index = 2;    // ㅗ자 모양의 스프라이트
+                break;
+            case AdjTilePosition.All:
+                index = 3;    // +자 모양의 스프라이트
+                break;
+
+        }
+        return index;
     }
     private Quaternion GetRotation(AdjTilePosition mask)
     {
-        return Quaternion.identity;
+        Quaternion rotate = Quaternion.identity;
+
+        // 기본 : l, ㄱ, ㅗ
+        switch (mask)
+        {
+            case AdjTilePosition.East:                          // l자
+            case AdjTilePosition.West:
+            case AdjTilePosition.East | AdjTilePosition.West:
+            case AdjTilePosition.West | AdjTilePosition.North:  // ㄱ자
+            case AdjTilePosition.All & ~AdjTilePosition.West:   // ㅗ자
+                rotate = Quaternion.Euler(0, 0, -90);
+                break;
+            case AdjTilePosition.North | AdjTilePosition.East:  // ㄱ자
+            case AdjTilePosition.All & ~AdjTilePosition.North:  // ㅗ자
+                rotate = Quaternion.Euler(0, 0, -180);
+                break;
+            case AdjTilePosition.East | AdjTilePosition.South:  // ㄱ자
+            case AdjTilePosition.All & ~AdjTilePosition.East:   // ㅗ자
+                rotate = Quaternion.Euler(0, 0, -270);
+                break;
+        }
+
+        return rotate;
     }
 
     // 타일맵에서 지정된 위치에 있는 타일이 같은 종류의 타일인지 확읺아는 함수
@@ -90,4 +149,20 @@ public class RoadTile : Tile
     {
         return tilemap.GetTile(position) == this;   // 타일은 1개. 타일맵은 타일의 정보를 참조해서 보여주기 때문에 이 코드가 가능
     }
+#if UNITY_EDITOR
+    [MenuItem("Assets/Create/2D/Tiles/RoadTile")]
+    public static void CreateRoadTile()
+    {
+        string path = EditorUtility.SaveFilePanelInProject(
+            "Save Road Tile",  // 제목
+            "New Road Tile",   // 파일의 기본 이름
+            "Asset",           // 파일의 확장자
+            "Save Road Tile",  // 출력되는 메세지
+            "Assets");         // 열리는 기본 폴더
+        if(path != string.Empty)  // path가 비어있지 않으면
+        {
+            AssetDatabase.CreateAsset(CreateInstance<RoadTile>(), path);  // RoadTile을 path위치에 생성
+        }
+    }
+#endif
 }
