@@ -32,7 +32,6 @@ public class Player : MonoBehaviour
         inputActions.Player.Attack.performed += OnAttack;
     }
 
-
     private void OnDisable()
     {
         inputActions.Player.Attack.performed -= OnAttack;
