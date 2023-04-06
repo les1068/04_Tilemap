@@ -177,6 +177,7 @@ public class Player : MonoBehaviour
         {
             attackAreaCenter.rotation = Quaternion.identity;
         }
+
     }
     
 }
