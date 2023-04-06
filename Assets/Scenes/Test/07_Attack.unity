@@ -289,14 +289,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3115709474440554675, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
-      propertyPath: m_SortingLayer
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 3115709474440554675, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
-      propertyPath: m_SortingLayerID
-      value: -694779705
-      objectReference: {fileID: 0}
     - target: {fileID: 3115709474440554677, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
       propertyPath: m_Name
       value: Slime (1)
@@ -699,14 +691,6 @@ PrefabInstance:
     - target: {fileID: 3115709474440554672, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3115709474440554675, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
-      propertyPath: m_SortingLayer
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 3115709474440554675, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
-      propertyPath: m_SortingLayerID
-      value: -694779705
       objectReference: {fileID: 0}
     - target: {fileID: 3115709474440554677, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
       propertyPath: m_Name
