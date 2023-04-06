@@ -50,6 +50,9 @@ TagManager:
   - name: Object
     uniqueID: 2662913243
     locked: 0
+  - name: Slime
+    uniqueID: 3600187591
+    locked: 0
   - name: Player
     uniqueID: 2022139123
     locked: 0
