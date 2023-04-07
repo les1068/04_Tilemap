@@ -33,7 +33,7 @@ public class GridMap
             }
         }    
     }
-    public Node GetGird(int x, int y) // 특정 위치에 있는 노드를 돌려주는 함수 / x : x좌표, y : y좌표 / return x,y에 있는 노드
+    public Node GetNode(int x, int y) // 특정 위치에 있는 노드를 돌려주는 함수 / return x,y에 있는 노드
     {
         int index = GridToIndex(x, y);
         Node result = null;
@@ -43,24 +43,31 @@ public class GridMap
         }
         return result;
     }
-    public Node GetGrid(Vector2Int gridPos)
+    public Node GetNode(Vector2Int gridPos) // 특정 위치에 있는 노드를 돌려주는 함수 / gridPos 그리드 좌표
     {
-        return null;
+        return GetNode(gridPos.x, gridPos.y);
     }
-    public Node GetGrid(Vector3 worldPos)
+    public Node GetNode(Vector3 worldPos) // 특정 월드에 있는 노드를 돌려주는 함수 / gridPos 그리드 좌표
     {
-        return null;
+        return GetNode(WorldToGrid(worldPos));
+    }
+    public void ClearData()  // 모든 노드의 A* 계산용 데이터를 초기화 하는 함수
+    {
+        foreach(var node in nodes)
+        {
+            node.ClearData();
+        }
     }
 
     // 유틸리티 함수-----------------------------------------
     public Vector2Int WorldToGrid(Vector3 worldPos) // 월드 좌표를 그리드 좌표로 변경해주는 함수 / worldPos : 월드 좌표, return : 변환된 그리드 좌표
     {
-        return Vector2Int.zero;
+        return new Vector2Int((int)worldPos.x, (int)worldPos.y);
     }
 
-    public Vector2 GriodToWorld(Vector2Int girdPos) // 그리드 좌표를 월드 좌표로 변경해주는 함수 / girdPos : 그리드 좌표, return : 변환된 월드 좌표
+    public Vector2 GriodToWorld(Vector2Int gridPos) // 그리드 좌표를 월드 좌표로 변경해주는 함수 / girdPos : 그리드 좌표, return : 변환된 월드 좌표
     {
-        return Vector2.zero;
+        return new Vector2(gridPos.x + 0.5f, gridPos.y + 0.5f);
     }
 
     private int GridToIndex(int x, int y) // 그리드 좌표를 index로 변경해주는 함수 / x : x좌표, y : y좌표 , return : 변환된 인덱스 값
@@ -87,20 +94,22 @@ public class GridMap
     {// 입력받은 위치가 맵 내부인지 아닌지 확인하는 함수 / x : x좌표, y : y좌표, return : 맵 내무면 true, 맵 밖이면 flase
         return IsValidPosition(gridPos.x, gridPos.y);
     }
-    public bool IsWall(int x, int y)
+    public bool IsWall(int x, int y)  // 입력받은 위치가 벽인지 아닌지 확인하는 함수
     {
-        return false;
+        Node node = GetNode(x, y);
+        return node != null && node.gridType == Node.GridType.Wall;
     }
     public bool IsWall(Vector2Int gridPos)
     {
-        return false;
+        return IsWall(gridPos.x,gridPos.y); 
     }
     public bool IsMonster(int x, int y)
     {
-        return false;
+        Node node = GetNode(x, y);
+        return node != null && node.gridType == Node.GridType.Monster;
     }
     public bool IsMonster(Vector2Int gridPos)
     {
-        return false;
+        return IsMonster(gridPos.x, gridPos.y);
     }
 }

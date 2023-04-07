@@ -8,12 +8,20 @@ public class Test_Astar : Test_Base
     {
         GridMap map = new GridMap(4, 3);
 
-        Node node = map.GetGird(1, 0);
+        Node node = map.GetNode(1, 0);
         node.gridType = Node.GridType.Wall;
-        node = map.GetGird(1, 1);
+        node = map.GetNode(2, 2);
         node.gridType = Node.GridType.Wall;
-        node = map.GetGird(1, 2);
-        node.gridType = Node.GridType.Wall;
+
+        List<Vector2Int> path = Astar.PathFind(map, new(0, 0), new(3, 2));
+
+        string pathStr = "Path : ";
+        foreach(var pos in path)
+        {
+            pathStr += $"({pos.x},{pos.y}) ->";
+        }
+        pathStr += " 끝";
+        Debug.Log(pathStr);
 
         int i = 0;
     }

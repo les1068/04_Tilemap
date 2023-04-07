@@ -40,7 +40,7 @@ public class Node : IComparable<Node>   // Node 클래스로 비교가 가능하
     }
 
     public int CompareTo(Node other)
-    {// 크기 비교를 하기 위해서 추가된 함수 IComparable를 상속받았기 때문에 반드시 구현해야 한다. / oter 비교 대상
+    {// 크기 비교를 하기 위해서 추가된 함수 IComparable를 상속받았기 때문에 반드시 구현해야 한다. / other 비교 대상
 
         // 리턴이 0보다 작다  : 내가 작다. (this < other) 
         // 리턴이 0이다      : this와 other가 크기(순서)가 같다.
