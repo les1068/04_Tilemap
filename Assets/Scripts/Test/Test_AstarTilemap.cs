@@ -9,6 +9,8 @@ public class Test_AstarTilemap : Test_Base
     public Tilemap background;
     public Tilemap obstacle;
 
+    public PathLine pathLine;
+
     public Transform start;
     public Transform end;
 
@@ -18,14 +20,19 @@ public class Test_AstarTilemap : Test_Base
     {
         map = new GridMap(background,obstacle);
     }
+
+    // 마우스 좌클릭으로 시작위치 설정
+    // 마우스 우클릭으로 도착위치 설정
     protected override void Test1(InputAction.CallbackContext _)
     {
         Vector2Int startGrid = map.WorldToGrid(start.position);
         Debug.Log($"Start : {startGrid}");
         Vector2Int endGrid = map.WorldToGrid(end.position);
         Debug.Log($"End : {endGrid}");
-    }
 
+        List<Vector2Int> path = Astar.PathFind(map, startGrid, endGrid);
+        pathLine.DrawPath(map,path);
+    }
     private void Test_GetTileMapInfos()
     {
         // 타일맵의 크기
