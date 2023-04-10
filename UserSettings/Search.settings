@@ -7,7 +7,7 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.DA949528" = "color mode"
+	"last_search.DA949528" = "tilemap"
 	"OpenInspectorPreview.DA949528" = "0"
 	"currentGroup.DA949528" = "all"
 }
@@ -56,8 +56,8 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
-	"co"
 	"t"
+	"co"
 ]
 searchItemFavorites = [
 ]
