@@ -6,9 +6,15 @@ using UnityEngine.UIElements;
 
 public class Slime : PoolObject
 {
+    public float moveSpeed = 2.0f;
+    GridMap map;
+    List<Vector2Int> path;
+    PathLine pathLine;
+    public PathLine PathLine => pathLine;
+    Vector2Int Position => map.WorldToGrid(transform.position);
+
     public float phaseDuration = 0.5f;     // 페이즈 전체 진행 시간
     public float dissolveDuration = 1.0f;  // dissolve 전체 진행 시간
-
     const float Outline_Thickness = 0.005f;// 외각선 두께용 상수 
 
     Action onPhaseEnd;       // Phase가 끝날 때 실행되는 델리게이트
@@ -21,6 +27,8 @@ public class Slime : PoolObject
 
     private void Awake()
     {
+        pathLine = GetComponentInChildren<PathLine>();
+
         spriteRenderer = GetComponent<SpriteRenderer>();
         mainMaterial = spriteRenderer.material;
 
@@ -32,10 +40,14 @@ public class Slime : PoolObject
         ResetShaderProperties();        // 스폰 될 때 쉐이더 프로퍼티 초기화
         StartCoroutine(StartPhase());   // 쉐이더 시작
     }
+    private void Update()
+    {
+        MoveUpdate();
+    }
 
     private void ResetShaderProperties() // 쉐이더 프로포티 초기화 함수
     {
-        mainMaterial.SetFloat("_OutlineThickbess",0.0f);     // 아웃라인 안보이게 하기
+        mainMaterial.SetFloat("_OutlineThickbess", 0.0f);     // 아웃라인 안보이게 하기
 
         mainMaterial.SetFloat("_PhaseSplit", 1.0f);          // 페이즈 선 위치 초기화
         mainMaterial.SetFloat("_PhaseThickness", 0.1f);      // 페이즈 선 두께 설정해서 선 보이게 만들기
@@ -83,13 +95,13 @@ public class Slime : PoolObject
 
     public void ShowOutline(bool isShow = true)  // 아웃라인 표시용 함수 / isShow : true면 아웃라인을 표시, false면 아웃라인 끄기
     {
-        if(isShow)
+        if (isShow)
         {
-            mainMaterial.SetFloat("_OutlineThickness",Outline_Thickness);
+            mainMaterial.SetFloat("_OutlineThickness", Outline_Thickness);
         }
         else
         {
-            mainMaterial.SetFloat("_OutlineThickness",0.0f);
+            mainMaterial.SetFloat("_OutlineThickness", 0.0f);
         }
     }
 
@@ -100,5 +112,36 @@ public class Slime : PoolObject
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
         gameObject.SetActive(false);
+    }
+    public void Initialize(GridMap gridmap, Vector3 pos)
+    {
+        map = gridmap;
+        transform.position = map.GridToWorld(map.WorldToGrid(pos));
+    }
+    public void SetDestination(Vector2Int goal)
+    {
+        path = Astar.PathFind(map, Position, goal);
+        pathLine.DrawPath(map, path);
+    }
+    private void MoveUpdate()
+    {
+        if (path != null && path.Count > 0)
+        {
+            Vector2Int destGrid = path[0];
+
+            Vector3 dest = map.GridToWorld(destGrid);
+            Vector3 dir = dest - transform.position;
+
+            if (dir.sqrMagnitude < 0.001f)
+            {
+                transform.position = dest;
+                path.RemoveAt(0);
+            }
+            else
+            {
+                transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);
+            }
+
+        }
     }
 }

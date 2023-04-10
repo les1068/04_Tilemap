@@ -16,6 +16,8 @@ public class GridMap
 
     Tilemap background; // 배경용 타일맵 
 
+    Vector2Int[] movablepositions; // 이 맵에서 이동 가능한 위치(그리드 좌표)
+
     public const int Error_Not_Vaild_Position = -1;  // 위치 입력이 잘못되었다는 것을 표시하기 위한 함수
 
     /// <summary>
@@ -42,6 +44,7 @@ public class GridMap
                 nodes[index] = new Node(x,y);
             }
         }    
+        movablepositions = new Vector2Int[height * width];
     }
 
     /// <summary>
@@ -64,6 +67,7 @@ public class GridMap
         Vector2Int min = new(background.cellBounds.xMin, background.cellBounds.yMin);
         Vector2Int max = new(background.cellBounds.xMax, background.cellBounds.yMax);
 
+        List<Vector2Int> movable = new List<Vector2Int>(height * width);
         // 백그라운드 내부를 한칸씩 순회하기
         for (int y = min.y; y < max.y; y++)
         {
@@ -77,9 +81,14 @@ public class GridMap
                 {
                     tileType = Node.GridType.Wall;  // 타일의 타입을 벽으로 설정
                 }
+                else
+                {
+                    movable.Add(new Vector2Int(x, y));
+                }
                 nodes[index] = new Node(x, y, tileType);  // 해당 인덱스에 노드 생성해서 배열에 넣기
             }
         }
+        movablepositions = movable.ToArray();
         this.background = background;  // 백그라운드 저장
     }
 
@@ -170,4 +179,14 @@ public class GridMap
     {
         return IsMonster(gridPos.x, gridPos.y);
     }
+    /// <summary>
+    /// 랜덤으로 이동가능한 지역 뽑기
+    /// </summary>
+    /// <returns></returns>
+    public Vector2Int GetRandomMovavlePosition()
+    {
+        //movablepositions;
+        return Vector2Int.zero;
+    }
+    // 슬라임 이동이 완료되면 자동으로 랜덤한 위치로 다시 시작하게 만들기
 }

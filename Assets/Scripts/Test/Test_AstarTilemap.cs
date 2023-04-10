@@ -29,8 +29,8 @@ public class Test_AstarTilemap : Test_Base
     }
     protected override void OnDisable()
     {
-        inputActions.Test.RClick.performed += OnRClick;  // 연결한 함수 해제
-        inputActions.Test.Click.performed += OnLClick;
+        inputActions.Test.RClick.performed -= OnRClick;  // 연결한 함수 해제
+        inputActions.Test.Click.performed -= OnLClick;
         base.OnDisable();
     }
     
