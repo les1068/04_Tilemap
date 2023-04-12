@@ -12,6 +12,7 @@ public class Slime : PoolObject
     PathLine pathLine;
     public PathLine PathLine => pathLine;
     Vector2Int Position => map.WorldToGrid(transform.position);
+    Action OnGoalArrive;
 
     public float phaseDuration = 0.5f;     // 페이즈 전체 진행 시간
     public float dissolveDuration = 1.0f;  // dissolve 전체 진행 시간
@@ -34,6 +35,19 @@ public class Slime : PoolObject
 
         onDissolveEnd += Die;      // Dissolve가 끝나면 죽게 만들기
 
+        OnGoalArrive += () =>
+        {
+            //SetDestination(map.GetRandomMovavlePosition());  // 현재 위치가 다시 나와도 상관없음
+            
+            // 현재 위치가 다시 안나왔으면 좋겠을 때
+            Vector2Int pos;
+            do
+            {
+                pos = map.GetRandomMovavlePosition();
+            } while (pos == Position);  // 랜덤으로 가져온 위치가 현재 위치랑 다른 위치일 때 까지 반복
+            
+            SetDestination(pos);        // 지정된 위치로 이동하기
+        };
     }
     private void OnEnable()
     {
@@ -113,35 +127,56 @@ public class Slime : PoolObject
     {
         gameObject.SetActive(false);
     }
+
+    /// <summary>
+    /// 슬라임 초기화용 함수
+    /// </summary>
+    /// <param name="gridmap">그리드 맵</param>
+    /// <param name="pos">시작 위치의 그리드 좌표</param>
     public void Initialize(GridMap gridmap, Vector3 pos)
     {
-        map = gridmap;
-        transform.position = map.GridToWorld(map.WorldToGrid(pos));
+        map = gridmap;  // 맵 저장
+        transform.position = map.GridToWorld(map.WorldToGrid(pos));  // 시작 위치에 배치
     }
+
+    /// <summary>
+    /// 목적지를 지정하는 함수
+    /// </summary>
+    /// <param name="goal">목적지의 그리드 좌표</param>
     public void SetDestination(Vector2Int goal)
     {
-        path = Astar.PathFind(map, Position, goal);
-        pathLine.DrawPath(map, path);
+        path = Astar.PathFind(map, Position, goal);  // 길찾기해서 경로 저장하기
+        pathLine.DrawPath(map, path);                // 경로 따라서 그리기
     }
+
+    /// <summary>
+    /// Update에서 실행되는 함수. 이동 처리.
+    /// </summary>
     private void MoveUpdate()
     {
-        if (path != null && path.Count > 0)
+        if (path != null && path.Count > 0)  // path가 있고 path의 갯수가 0보다 크다.
         {
-            Vector2Int destGrid = path[0];
+            Vector2Int destGrid = path[0];   // path의 [0]번째를 중간 목적지로 설정
 
-            Vector3 dest = map.GridToWorld(destGrid);
-            Vector3 dir = dest - transform.position;
+            Vector3 dest = map.GridToWorld(destGrid); // 중간 목적지의 월드 좌표 계산
+            Vector3 dir = dest - transform.position;  // 방향 결정
 
-            if (dir.sqrMagnitude < 0.001f)
+            if (dir.sqrMagnitude < 0.001f)   // 남은 거리 확인
             {
-                transform.position = dest;
-                path.RemoveAt(0);
+                // 거의 도착한 상태
+                transform.position = dest;   // 중간 도착지점으로 위치옮기기   
+                path.RemoveAt(0);            // path의 0번째 제거
             }
             else
             {
-                transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);
+                // 아직 거리가 남아있는 상태
+                transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);  // 중간 지점까지 계속 이동
             }
-
+        }
+        else
+        {
+            // path 따라서 도착
+            OnGoalArrive?.Invoke();
         }
     }
 }

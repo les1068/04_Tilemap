@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 // 그리드 좌표 (0,0) = 월드 좌표 (0.5f, 0.5f, 0);
 // 그리드 좌표의 한칸의 간격은 1
@@ -35,6 +36,7 @@ public class GridMap
         //Node[,] test = new Node[height, width];
         //test[2,1]
         nodes = new Node[height * width];
+        movablepositions = new Vector2Int[height * width];
         
         for(int y = 0; y < height; y++)
         {
@@ -42,9 +44,9 @@ public class GridMap
             {
                 int index = GridToIndex(x, y);
                 nodes[index] = new Node(x,y);
+                movablepositions[index] = new Vector2Int(x,y);
             }
         }    
-        movablepositions = new Vector2Int[height * width];
     }
 
     /// <summary>
@@ -182,11 +184,10 @@ public class GridMap
     /// <summary>
     /// 랜덤으로 이동가능한 지역 뽑기
     /// </summary>
-    /// <returns></returns>
+    /// <returns>이동 가능한 위치 중 하나(랜덤)</returns>
     public Vector2Int GetRandomMovavlePosition()
     {
-        //movablepositions;
-        return Vector2Int.zero;
+        int index = Random.Range(0, movablepositions.Length);
+        return movablepositions[index];
     }
-    // 슬라임 이동이 완료되면 자동으로 랜덤한 위치로 다시 시작하게 만들기
 }
