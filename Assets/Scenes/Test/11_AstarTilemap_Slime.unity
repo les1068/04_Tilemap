@@ -4002,6 +4002,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1840709817007194093, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
+      propertyPath: phaseDuration
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -1840709817007194093, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
+      propertyPath: dissolveDuration
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3115709474440554672, guid: 8fe9b82e229479a468d3fe7431160617, type: 3}
       propertyPath: m_RootOrder
       value: 3

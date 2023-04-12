@@ -6,17 +6,22 @@ using UnityEngine.UIElements;
 
 public class Slime : PoolObject
 {
-    public float moveSpeed = 2.0f;
-    GridMap map;
-    List<Vector2Int> path;
-    PathLine pathLine;
-    public PathLine PathLine => pathLine;
-    Vector2Int Position => map.WorldToGrid(transform.position);
-    Action OnGoalArrive;
+    bool isActivete = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
+    Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
+
+
+    public float moveSpeed = 2.0f;  // 이동속도
+    GridMap map;                    // 이 슬라임이 있는 그리드 맵
+    List<Vector2Int> path;          // 슬라임이 이동할 경로
+    PathLine pathLine;              // 슬라임이 이동할 경로를 그리는 클래스
+    public PathLine PathLine => pathLine; // 경로 그리는 클래스 접근용 프로퍼티
+    Action OnGoalArrive;            // 목적지 도착했을 때 실행되는 델리게이트
+
 
     public float phaseDuration = 0.5f;     // 페이즈 전체 진행 시간
     public float dissolveDuration = 1.0f;  // dissolve 전체 진행 시간
     const float Outline_Thickness = 0.005f;// 외각선 두께용 상수 
+
 
     Action onPhaseEnd;       // Phase가 끝날 때 실행되는 델리게이트
     Action onDissolveEnd;    // Dissolve가 끝날 때 실행되는 델리게이트(기본적으로 Die 함수가 연결되어있음)
@@ -33,24 +38,29 @@ public class Slime : PoolObject
         spriteRenderer = GetComponent<SpriteRenderer>();
         mainMaterial = spriteRenderer.material;
 
+        onPhaseEnd += () =>
+        {
+            isActivete = true;     // 페이즈가 끝나면 isActivate를 활성화
+        };
         onDissolveEnd += Die;      // Dissolve가 끝나면 죽게 만들기
 
         OnGoalArrive += () =>
         {
             //SetDestination(map.GetRandomMovavlePosition());  // 현재 위치가 다시 나와도 상관없음
-            
+
             // 현재 위치가 다시 안나왔으면 좋겠을 때
             Vector2Int pos;
             do
             {
                 pos = map.GetRandomMovavlePosition();
             } while (pos == Position);  // 랜덤으로 가져온 위치가 현재 위치랑 다른 위치일 때 까지 반복
-            
+
             SetDestination(pos);        // 지정된 위치로 이동하기
         };
     }
     private void OnEnable()
     {
+        isActivete = false;
         ResetShaderProperties();        // 스폰 될 때 쉐이더 프로퍼티 초기화
         StartCoroutine(StartPhase());   // 쉐이더 시작
     }
@@ -61,7 +71,7 @@ public class Slime : PoolObject
 
     private void ResetShaderProperties() // 쉐이더 프로포티 초기화 함수
     {
-        mainMaterial.SetFloat("_OutlineThickbess", 0.0f);     // 아웃라인 안보이게 하기
+        mainMaterial.SetFloat("_OutlineThickbess", 0.0f);    // 아웃라인 안보이게 하기
 
         mainMaterial.SetFloat("_PhaseSplit", 1.0f);          // 페이즈 선 위치 초기화
         mainMaterial.SetFloat("_PhaseThickness", 0.1f);      // 페이즈 선 두께 설정해서 선 보이게 만들기
@@ -70,7 +80,7 @@ public class Slime : PoolObject
 
     }
 
-    IEnumerator StartPhase()        // 스폰될 때 실핼될 코루틴phase 동작 시키기
+    IEnumerator StartPhase()        // 스폰될 때 실핼될 코루틴 phase 동작 시키기
     {
         float timeElipsed = 0.0f;                            // 진행 시간 초기화
         float phaseNormalize = 1.0f / phaseDuration;         // split 값을 0~1사이로 정규화하기 위해 미리 계산(나누기 횟수 줄이기 위한 용도)
@@ -90,7 +100,6 @@ public class Slime : PoolObject
     }
     IEnumerator StartDissolve()   // 플레이어에게 공격 당했을 때 실행될 코루틴
     {
-
         float timeElipsed = 0.0f;                            // 진행 시간 초기화
         float dissolveNormalize = 1.0f / dissolveDuration;   // fade 값을 0~1사이로 정규화하기 위해 미리 계산(나누기 횟수 줄이기 위한 용도)
 
@@ -121,7 +130,11 @@ public class Slime : PoolObject
 
     public void OnAttacked()   // 플레이어에게 공격 당하면 실행되는 함수
     {
-        StartCoroutine(StartDissolve());
+        if (isActivete)
+        {
+            isActivete = false;               // 활성화 끄기
+            StartCoroutine(StartDissolve());  // Dissolve Shader 켜기
+        }
     }
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
@@ -154,29 +167,32 @@ public class Slime : PoolObject
     /// </summary>
     private void MoveUpdate()
     {
-        if (path != null && path.Count > 0)  // path가 있고 path의 갯수가 0보다 크다.
+        if (isActivete)  // 활성화 상태일 때만 움직이기
         {
-            Vector2Int destGrid = path[0];   // path의 [0]번째를 중간 목적지로 설정
-
-            Vector3 dest = map.GridToWorld(destGrid); // 중간 목적지의 월드 좌표 계산
-            Vector3 dir = dest - transform.position;  // 방향 결정
-
-            if (dir.sqrMagnitude < 0.001f)   // 남은 거리 확인
+            if (path != null && path.Count > 0)  // path가 있고 path의 갯수가 0보다 크다.
             {
-                // 거의 도착한 상태
-                transform.position = dest;   // 중간 도착지점으로 위치옮기기   
-                path.RemoveAt(0);            // path의 0번째 제거
+                Vector2Int destGrid = path[0];   // path의 [0]번째를 중간 목적지로 설정
+
+                Vector3 dest = map.GridToWorld(destGrid); // 중간 목적지의 월드 좌표 계산
+                Vector3 dir = dest - transform.position;  // 방향 결정
+
+                if (dir.sqrMagnitude < 0.001f)   // 남은 거리 확인
+                {
+                    // 거의 도착한 상태
+                    transform.position = dest;   // 중간 도착지점으로 위치옮기기   
+                    path.RemoveAt(0);            // path의 0번째 제거
+                }
+                else
+                {
+                    // 아직 거리가 남아있는 상태
+                    transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);  // 중간 지점까지 계속 이동
+                }
             }
             else
             {
-                // 아직 거리가 남아있는 상태
-                transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);  // 중간 지점까지 계속 이동
+                // path 따라서 도착
+                OnGoalArrive?.Invoke();
             }
-        }
-        else
-        {
-            // path 따라서 도착
-            OnGoalArrive?.Invoke();
         }
     }
 }
