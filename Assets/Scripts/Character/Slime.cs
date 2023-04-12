@@ -8,7 +8,7 @@ public class Slime : PoolObject
 {
     bool isActivete = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
     Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
-
+    public Action onDie;
 
     public float moveSpeed = 2.0f;  // 이동속도
     GridMap map;                    // 이 슬라임이 있는 그리드 맵
@@ -138,6 +138,8 @@ public class Slime : PoolObject
     }
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
+        onDie?.Invoke();
+        onDie = null;
         gameObject.SetActive(false);
     }
 

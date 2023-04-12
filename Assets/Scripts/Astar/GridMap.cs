@@ -182,6 +182,27 @@ public class GridMap
         return IsMonster(gridPos.x, gridPos.y);
     }
     /// <summary>
+    /// 스폰 가능한 위치인지 확인하는 함수
+    /// </summary>
+    /// <param name="x">x좌표</param>
+    /// <param name="y">y좌표</param>
+    /// <returns>스폰 가능한 위치면 true, 아니면 false</returns>
+    public bool IsSpawnable(int x, int y)
+    {
+        Node node = GetNode(x, y);
+        return node != null && (node.gridType == Node.GridType.Plain);
+    }
+    /// <summary>
+    /// 스폰 가능한 위치인지 확인하는 함수
+    /// </summary>
+    /// <param name="gridPos">그리드 좌표</param>
+    /// <returns>스폰 가능한 위치면 true, 아니면 false</returns>
+    public bool IsSpawnable(Vector2Int gridPos)
+    {
+        return IsSpawnable(gridPos.x, gridPos.y);
+    }
+
+    /// <summary>
     /// 랜덤으로 이동가능한 지역 뽑기
     /// </summary>
     /// <returns>이동 가능한 위치 중 하나(랜덤)</returns>

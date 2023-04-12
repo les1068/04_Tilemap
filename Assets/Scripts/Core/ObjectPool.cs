@@ -81,33 +81,17 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
         }
     }
 
-    /// <summary>
-    /// 풀에서 오브젝트 하나를 꺼내서 리턴해주는 함수
-    /// </summary>
-    /// <returns>레디큐에서 꺼낸 오브젝트</returns>
-    public T GetObject()
-    {
-        if( readyQueue.Count > 0 )  // 큐에 오브젝트가 있는지 확인
-        {
-            T obj = readyQueue.Dequeue();   // 큐에 오브젝트가 있으면 큐에서 하나 꺼내고
-            obj.gameObject.SetActive(true); // 활성화 시킨 다음에
-            return obj;                     // 리턴
-        }
-        else
-        {            
-            ExpandPool();           // 큐에 오브젝트가 없으면 풀을 두배로 늘린다.
-            return GetObject();     // 새롭게 하나 요청
-        }
-    }
-
-    public T GetObject(Transform spawnTransform)
+    public T GetObject(Transform spawnTransform =null)
     {
         if (readyQueue.Count > 0)  // 큐에 오브젝트가 있는지 확인
         {
             T obj = readyQueue.Dequeue();   // 큐에 오브젝트가 있으면 큐에서 하나 꺼내고
-            obj.transform.position = spawnTransform.position;
-            obj.transform.rotation = spawnTransform.rotation;
-            obj.transform.localScale = spawnTransform.localScale;
+            if(spawnTransform != null)
+            {
+                obj.transform.position = spawnTransform.position;
+                obj.transform.rotation = spawnTransform.rotation;
+                obj.transform.localScale = spawnTransform.localScale;
+            }
             obj.gameObject.SetActive(true); // 활성화 시킨 다음에
             return obj;                     // 리턴
         }
