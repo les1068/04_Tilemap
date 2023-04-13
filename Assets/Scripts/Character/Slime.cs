@@ -10,11 +10,36 @@ public class Slime : PoolObject
     Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
     public Action onDie;
 
-    public float moveSpeed = 2.0f;  // 이동속도
-    GridMap map;                    // 이 슬라임이 있는 그리드 맵
-    List<Vector2Int> path;          // 슬라임이 이동할 경로
-    PathLine pathLine;              // 슬라임이 이동할 경로를 그리는 클래스
+    public float moveSpeed = 2.0f;      // 이동속도
+    GridMap map;                        // 이 슬라임이 있는 그리드 맵
+    List<Vector2Int> path;              // 슬라임이 이동할 경로 
+    float pathWaitTime = 0.0f;          // 다른 슬라임에 의해 경로가 막혔을 때 기다리는 시간
+    const float MaxPathWaitTime = 1.0f; // 경로가 막혔을 때 최대로 기다리는 시간
+    PathLine pathLine;                  // 슬라임이 이동할 경로를 그리는 클래스
     public PathLine PathLine => pathLine; // 경로 그리는 클래스 접근용 프로퍼티
+
+    /// <summary>
+    /// 이 슬라임이 현재 위치하고 있는 노드
+    /// </summary>
+    Node current;
+    Node Current
+    {
+        get => current;
+        set
+        {
+            if (current != value)
+            {
+                if (current != null)
+                {
+                    current.gridType = Node.GridType.Plain; // 이전 노드를 plain으로 되돌리기
+                }
+                current = value;
+                current.gridType = Node.GridType.Monster;   // 새 current를 Monster로 설정
+
+                spriteRenderer.sortingOrder = -current.y;   // 겹쳤을 때 아래쪽 슬라임이 위에 그려지도록 설정
+            }
+        }
+    }
     Action OnGoalArrive;            // 목적지 도착했을 때 실행되는 델리게이트
 
 
@@ -156,6 +181,7 @@ public class Slime : PoolObject
     {
         map = gridmap;  // 맵 저장
         transform.position = map.GridToWorld(map.WorldToGrid(pos));  // 시작 위치에 배치
+        Current = map.GetNode(pos);
     }
 
     /// <summary>
@@ -166,6 +192,7 @@ public class Slime : PoolObject
     {
         path = Astar.PathFind(map, Position, goal);  // 길찾기해서 경로 저장하기
         pathLine.DrawPath(map, path);                // 경로 따라서 그리기
+
     }
 
     /// <summary>
@@ -175,30 +202,44 @@ public class Slime : PoolObject
     {
         if (isActivete)  // 활성화 상태일 때만 움직이기
         {
-            if (path != null && path.Count > 0)  // path가 있고 path의 갯수가 0보다 크다.
+            // path가 있고 path의 갯수가 0보다 크고, 대기시간이 최대 대기 시간보다 작을 때
+            if (path != null && path.Count > 0 && pathWaitTime < MaxPathWaitTime)
             {
                 Vector2Int destGrid = path[0];   // path의 [0]번째를 중간 목적지로 설정
 
-                Vector3 dest = map.GridToWorld(destGrid); // 중간 목적지의 월드 좌표 계산
-                Vector3 dir = dest - transform.position;  // 방향 결정
-
-                if (dir.sqrMagnitude < 0.001f)   // 남은 거리 확인
+                // destGrid에 몬스터가 없거나 destGird가 current가 일때(내 위치)
+                if (!map.IsMonster(destGrid) || map.GetNode(destGrid) == Current)
                 {
-                    // 거의 도착한 상태
-                    transform.position = dest;   // 중간 도착지점으로 위치옮기기   
-                    path.RemoveAt(0);            // path의 0번째 제거
+                    Vector3 dest = map.GridToWorld(destGrid); // 중간 목적지의 월드 좌표 계산
+                    Vector3 dir = dest - transform.position;  // 방향 결정
+
+                    if (dir.sqrMagnitude < 0.001f)   // 남은 거리 확인
+                    {
+                        // 거의 도착한 상태
+                        transform.position = dest;   // 중간 도착지점으로 위치옮기기   
+                        path.RemoveAt(0);            // path의 0번째 제거
+                    }
+                    else
+                    {
+                        // 아직 거리가 남아있는 상태
+                        transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);  // 중간 지점까지 계속 이동
+                        Current = map.GetNode(transform.position);   // 현재 노드 변경 시도
+                    }
+                    pathWaitTime = 0.0f; // 조금이라도 움지이면 대기시간 초기화
+
                 }
                 else
                 {
-                    // 아직 거리가 남아있는 상태
-                    transform.Translate(Time.deltaTime * moveSpeed * dir.normalized);  // 중간 지점까지 계속 이동
+                    pathWaitTime += Time.deltaTime; // 기다리는 시간 누적시키기
                 }
             }
             else
             {
                 // path 따라서 도착
-                OnGoalArrive?.Invoke();
+                pathWaitTime = 0.0f;     // 기다린 시간 초기화
+                OnGoalArrive?.Invoke();  // 도착했다고 알람 보내기
             }
         }
     }
 }
+

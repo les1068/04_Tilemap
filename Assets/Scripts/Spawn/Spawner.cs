@@ -106,7 +106,7 @@ public class Spawner : MonoBehaviour
         List<Node> spawns = new List<Node>();
         foreach (var node in spawnAreaList)     // spawnAreaList에서 몬스터가 없는 노드 구하기
         { 
-            if(node.gridType != Node.GridType.Monster)
+            if(node.gridType == Node.GridType.Plain)
             {
                 spawns.Add(node);
             }
