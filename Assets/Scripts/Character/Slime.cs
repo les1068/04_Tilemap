@@ -41,6 +41,7 @@ public class Slime : PoolObject
         onPhaseEnd += () =>
         {
             isActivete = true;     // 페이즈가 끝나면 isActivate를 활성화
+            PathLine.gameObject.SetActive(true);
         };
         onDissolveEnd += Die;      // Dissolve가 끝나면 죽게 만들기
 
@@ -138,6 +139,9 @@ public class Slime : PoolObject
     }
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
+        path.Clear();         // 경로를 다 비우기
+        PathLine.ClearPath(); // 라인랜더러 초기화 하고 오브젝트 비활성화
+
         onDie?.Invoke();
         onDie = null;
         gameObject.SetActive(false);

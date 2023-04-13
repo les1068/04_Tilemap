@@ -36,10 +36,10 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
     /// <summary>
     /// 처음 만들어졌을 때 한번 실행될 코드(초기화 코드)
     /// </summary>
-    public void Initialize()
+    public virtual void Initialize()
     {
-        if(pool == null)
-        { 
+        if (pool == null)
+        {
             // 풀이 없으면 새로 만들고
             pool = new T[poolSize];
             readyQueue = new Queue<T>(poolSize);    // capacity를 poolSize만큼잡고 생성
@@ -51,7 +51,7 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
         else
         {
             // 있으면 풀안의 오브젝트를 모두 비활성화 시킨다.
-            foreach(var obj in pool)
+            foreach (var obj in pool)
             {
                 obj.gameObject.SetActive(false);
             }
@@ -66,7 +66,7 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
     /// <param name="newArray">새로 생성한 오브젝트가 들어갈 배열(풀)</param>
     void GenerateObjects(int start, int end, T[] newArray)
     {
-        for(int i=start; i<end; i++)    // start부터 end까지 반복
+        for (int i = start; i < end; i++)    // start부터 end까지 반복
         {
             GameObject obj = Instantiate(originalPrefab, transform);    // 프리팹 생성하고 풀의 자식으로 설정
             obj.gameObject.name = $"{originalPrefab.name}_{i}";         // 이름 변경
@@ -74,19 +74,35 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
 
             // 리턴타입이 void이고 파라메터가 없는 람다함수를 onDisable에 등록
             // 델리게이트가 실행되면 readyQueue.Enqueue(comp) 실행
-            comp.onDisable += () => readyQueue.Enqueue(comp);   
+            comp.onDisable += () => readyQueue.Enqueue(comp);
+
+            OnGenerateObject(comp, i);             // 각 T 타입 별로 필요한 추가 작업 처리
 
             newArray[i] = comp;                 // 풀 배열에 넣고
             obj.SetActive(false);               // 비활성화해서 안보이게 만들기고 레디큐에도 추가하기
         }
     }
 
-    public T GetObject(Transform spawnTransform =null)
+    /// <summary>
+    /// 각 T 타입 별로 필요한 추가 작업 처리하는 함수
+    /// </summary>
+    /// <param name="comp">T타입의 컴포넌트</param>
+    /// <param name="index">풀에서의 인덱스</param>
+    protected virtual void OnGenerateObject(T comp, int index)
+    {
+
+    }
+    /// <summary>
+    /// 레디큐에서 오브젝트 하나 리턴하는 함수. 없으면 풀을 확장 시킨 후 하나 리턴
+    /// </summary>
+    /// <param name="spawnTransform">위치, 회전, 스케일을 설정하기 위한 트랜트폼</param>
+    /// <returns>레디큐에서 꺼내진 오브젝트 하나</returns>
+    public T GetObject(Transform spawnTransform = null)
     {
         if (readyQueue.Count > 0)  // 큐에 오브젝트가 있는지 확인
         {
             T obj = readyQueue.Dequeue();   // 큐에 오브젝트가 있으면 큐에서 하나 꺼내고
-            if(spawnTransform != null)
+            if (spawnTransform != null)
             {
                 obj.transform.position = spawnTransform.position;
                 obj.transform.rotation = spawnTransform.rotation;
@@ -98,8 +114,8 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
         else
         {
             ExpandPool();           // 큐에 오브젝트가 없으면 풀을 두배로 늘린다.
-            return GetObject();     // 새롭게 하나 요청
-        }        
+            return GetObject(spawnTransform);     // 새롭게 하나 요청
+        }
     }
 
     /// <summary>

@@ -1,30 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 public class Spawner : MonoBehaviour
 {
-    public float interval = 1.0f;  // 슬라임 스폰 간격
-     
-    public int capacity = 2;       // 동시에 유지되는 최대 슬라임 수
+    /// <summary>
+    /// 슬라임 스폰 간격
+    /// </summary>
+    public float interval = 1.0f;
 
-    public Vector2 size;           // 스포너의 크기
+    /// <summary>
+    /// 동시에 유지되는 최대 슬라임 수
+    /// </summary>
+    public int capacity = 2;
 
-    float elapsed = 0.0f;          // 현재 스폰된 슬람이의 수
+    /// <summary>
+    /// 스포너의 크기(transform의 position에서 부터의 크기)
+    /// </summary>
+    public Vector2 size;
+
+    /// <summary>
+    /// 마지막 스폰에서부터 경과한 시간
+    /// </summary>
+    float elapsed = 0.0f;
+
+    /// <summary>
+    /// 현재 스폰된 슬라임의 수
+    /// </summary>
     int count = 0;
 
-    List<Node> spawnAreaList;      // 스폰 영역 중에 벽이 아닌 지역
+    /// <summary>
+    /// 스폰 영역 중에서 벽이 아닌 지역
+    /// </summary>
+    List<Node> spawnAreaList;
 
-    SpawnerManger manager;
+    SpawnerManager manager;
+
     private void Start()
     {
-        manager = GetComponentInParent<SpawnerManger>();
+        manager = GetComponentInParent<SpawnerManager>();
         spawnAreaList = manager.CalcSpawnArea(this);
     }
+
     private void Update()
     {
         if (count < capacity)
@@ -35,14 +55,13 @@ public class Spawner : MonoBehaviour
                 Spawn();
                 elapsed = 0.0f;
             }
-
         }
     }
+
 #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Vector3 basePos = new Vector3(Mathf.Floor(transform.position.x), Mathf.Floor(transform.position.y));
-
         Vector3 p0 = basePos;
         Vector3 p1 = basePos + Vector3.right * size.x;
         Vector3 p2 = basePos + new Vector3(size.x, size.y);
@@ -79,20 +98,21 @@ public class Spawner : MonoBehaviour
     /// <summary>
     /// 스폰할 위치를 구하는 함수
     /// </summary>
-    /// <param name="spawnPos">스폰할 위치를 찾았을 때 스폰 가능한 위치 중 하나를 돌려줌. 출력용 파라메터</param>
-    /// <returns>true면 찾은것, false면 스폰할 자리가 없는 것</returns>
+    /// <param name="spawnPos">스폰할 위치를 찾았을 때 스폰 가능한 위치 중 하나를 돌려줌(월드좌표). 출력용 파라메터</param>
+    /// <returns>true면 찾은 것, false면 스폰할 자리가 없는 것</returns>
     bool GetSpawnPosition(out Vector3 spawnPos)
     {
         bool result = false;
         List<Node> spawns = new List<Node>();
-        foreach(var node in spawnAreaList)           // spawnAreaList에서 몬스터가 없는 노드 구하기
-        {
+        foreach (var node in spawnAreaList)     // spawnAreaList에서 몬스터가 없는 노드 구하기
+        { 
             if(node.gridType != Node.GridType.Monster)
             {
                 spawns.Add(node);
             }
         }
-        if(spawns.Count > 0)
+
+        if(spawns.Count > 0)    
         {
             // 스폰 가능한 지역이 최소 하나는 있었다. => 그중에서 하나를 랜덤으로 고르기
             int index = Random.Range(0, spawns.Count);
@@ -102,7 +122,7 @@ public class Spawner : MonoBehaviour
         }
         else
         {
-            spawnPos = Vector3.zero;   // 스폰 가능한 위치가 없다.
+            spawnPos = Vector3.zero;    // 스폰 가능한 위치가 없다.
         }
         return result;
     }

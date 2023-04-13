@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class SpawnerManger : MonoBehaviour
+public class SpawnerManager : MonoBehaviour
 {
     GridMap gridMap;
     Tilemap background;
@@ -33,18 +33,19 @@ public class SpawnerManger : MonoBehaviour
     {
         List<Node> nodes = new List<Node>();
         Vector2Int min = gridMap.WorldToGrid(spawner.transform.position);   // p0
-        Vector2Int max = gridMap.WorldToGrid(spawner.transform.position + (Vector3)spawner.size);   // p2 + 1칸
+        Vector2Int max = gridMap.WorldToGrid(spawner.transform.position + (Vector3)spawner.size); // p2+1칸
 
-        for (int y = min.y; y <= max.y; y++)
+        for (int y = min.y; y < max.y; y++)
         {
             for (int x = min.x; x < max.x; x++)
             {
-                if (gridMap.IsSpawnable(x, y))         // 스폰 가능한 위치면
+                if (gridMap.IsSpawnable(x, y))            // 스폰 가능한 위치면
                 {
-                    nodes.Add(gridMap.GetNode(x, y));  // 리스트에 추가
+                    nodes.Add(gridMap.GetNode(x, y));    // 리스트에 추가
                 }
             }
         }
+
         return nodes;
     }
     /// <summary>
