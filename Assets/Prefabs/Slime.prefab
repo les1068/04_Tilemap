@@ -172,6 +172,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PathLine
       objectReference: {fileID: 0}
+    - target: {fileID: 5118679886515905591, guid: a677117ec0265734ba50b5dd04e70a37, type: 3}
+      propertyPath: m_Positions.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5118679886515905608, guid: a677117ec0265734ba50b5dd04e70a37, type: 3}
       propertyPath: m_RootOrder
       value: 0

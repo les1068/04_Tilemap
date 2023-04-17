@@ -117,7 +117,7 @@ public class Singleton<T> : MonoBehaviour where T : Component
         {
             PreInitialize();
         }
-        if (mode != LoadSceneMode.Additive)
+        if (mode != LoadSceneMode.Additive)    // Additive로 로딩이 된 것이 아닌때만
         {
             Initialize();
         }

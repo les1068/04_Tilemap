@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Tesst_Seemless : Test_Base
+public class Test_Seemless : Test_Base
 {
     public int x;
     public int y;
@@ -16,7 +16,7 @@ public class Tesst_Seemless : Test_Base
     protected override void Test2(InputAction.CallbackContext _)
     {
         MapManager mapManager = GameManager.Inst.MapManager;
-        mapManager.Test_UnLoadScene(x, y);
+        mapManager.Test_UnloadScene(x, y);
 
     }
 }

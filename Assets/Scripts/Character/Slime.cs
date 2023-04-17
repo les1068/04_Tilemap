@@ -8,13 +8,13 @@ public class Slime : PoolObject
 {
     bool isActivete = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
     Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
-    Transform pool = null;       // 슬라임 풀의 트랜스폼
+    Transform pool = null;
     public Transform Pool
     {
-        get => pool;          // 읽기는 마음대로
+        get => pool;            // 읽기는 마음대로
         set
         {
-            if(pool == null)  // 쓰기는 딱 한번만 가능
+            if(pool == null)    // 쓰기는 딱 한번만 가능
             {
                 pool = value;
             }
