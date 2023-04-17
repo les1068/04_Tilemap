@@ -94,9 +94,16 @@ public class LoadingScene : MonoBehaviour
         async = SceneManager.LoadSceneAsync(nextSceneName);  // 비동기 씬 로딩 시작
         async.allowSceneActivation = false;                  // 자동으로 씬 활성화 금지
 
+        /*Color start = Color.black;
+        Color end = Color.white;
+        Image image = slider.transform.GetChild(1).GetChild(0).GetComponent<Image>();*/
+
         while (loadRatio < 1.0f)        // loadRation가 1이상이 될때까지 반복
         {
             loadRatio = async.progress + 0.1f;  // 씬이 로딩 완료되었을 때 loadRatio는 1이 된다.
+
+            //image.color = Color.Lerp(start, end, loadRatio);
+
             yield return null;                  // 다음 프레임까지 대기
         }
 

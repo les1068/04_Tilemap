@@ -52,12 +52,12 @@ public class Singleton<T> : MonoBehaviour where T : Component
                 return null;    // null 리턴
             }
 
-            if( instance == null )  // 접근한 시점에서 instance가 있는지 없는지 확인
+            if (instance == null)  // 접근한 시점에서 instance가 있는지 없는지 확인
             {
                 // 없으면 만들어진적이 없다.
 
                 T obj = FindObjectOfType<T>();  // 에디터에서 만들어진 것이 있는지 확인
-                if( obj == null )                             // null이면 에디터에서 만들어진것도 없다.
+                if (obj == null)                             // null이면 에디터에서 만들어진것도 없다.
                 {
                     GameObject gameObj = new GameObject();    // 빈 오브젝트 생성
                     gameObj.name = typeof(T).Name;            // 이름 변경하고
@@ -73,7 +73,7 @@ public class Singleton<T> : MonoBehaviour where T : Component
 
     private void Awake()
     {
-        if( instance == null )  
+        if (instance == null)
         {
             // instance가 null이면 처음 생성 완료된 싱글톤 게임 오브젝트이다.(씬에 배치되어 있는 게임 오브젝트)
             instance = this as T;                   // instance에 이 싱글톤 객체 기록
@@ -82,7 +82,7 @@ public class Singleton<T> : MonoBehaviour where T : Component
         else
         {
             // instance가 null이 아니면 이미 만들어진 싱글톤 게임 오브젝트가 있는 상황
-            if( instance != this )
+            if (instance != this)
             {
                 // Awake되기 전에 다른 코드에서 프로퍼티를 통해서 접근 했고 그래서 생성이 된 상황
                 Destroy(this.gameObject);           // 나중에 만들어진 자기 자신을 삭제하기
@@ -114,7 +114,10 @@ public class Singleton<T> : MonoBehaviour where T : Component
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         PreInitialize();
-        Initialize();
+        if (mode != LoadSceneMode.Single)
+        {
+            Initialize();
+        }
     }
 
     /// <summary>
@@ -160,7 +163,7 @@ public class TestSingleton
     }
 
     // 중복생성 방지 목적. private으로 생성자를 만들어 기본 public생성자가 생성되지 않게 막기
-    private TestSingleton()     
+    private TestSingleton()
     {
     }
 }
