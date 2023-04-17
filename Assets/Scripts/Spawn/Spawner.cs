@@ -84,10 +84,8 @@ public class Spawner : MonoBehaviour
         {
             Slime slime = Factory.Inst.GetSlime();
             count++;
-            Transform oldParent = slime.transform.parent;
             slime.onDie += () =>
             {
-                slime.transform.SetParent(oldParent);
                 count--;
             };
             slime.transform.SetParent(transform);

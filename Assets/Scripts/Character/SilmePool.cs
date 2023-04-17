@@ -5,7 +5,6 @@ using UnityEngine;
 public class SilmePool : ObjectPool<Slime>
 {
     Transform pathLines;
-
     public override void Initialize()
     {
         pathLines = transform.GetChild(0);
@@ -13,10 +12,13 @@ public class SilmePool : ObjectPool<Slime>
     }
     protected override void OnGenerateObject(Slime comp, int index)
     {
+        comp.Pool = comp.transform.parent;  // 풀의 트랜스폼 설정
+        
         PathLine pathLine = comp.PathLine;
         pathLine.gameObject.name = $"PathLine_{index}";
         pathLine.transform.SetParent(pathLines);
         //pathLine.gameObject.SetActive(false);
+
     }
 
 }

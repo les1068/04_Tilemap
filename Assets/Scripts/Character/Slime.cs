@@ -8,7 +8,20 @@ public class Slime : PoolObject
 {
     bool isActivete = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
     Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
-    public Action onDie;
+    Transform pool = null;       // 슬라임 풀의 트랜스폼
+    public Transform Pool
+    {
+        get => pool;          // 읽기는 마음대로
+        set
+        {
+            if(pool == null)  // 쓰기는 딱 한번만 가능
+            {
+                pool = value;
+            }
+        }
+    }
+    public Action onDie;  // 죽었을 때 실행될 델리게이트 (보너스용)
+
 
     public float moveSpeed = 2.0f;      // 이동속도
     GridMap map;                        // 이 슬라임이 있는 그리드 맵
@@ -164,14 +177,24 @@ public class Slime : PoolObject
     }
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
+        onDie?.Invoke();
+        onDie = null;
+        
+        ReturnToPool();
+    }
+
+    /// <summary>
+    /// 슬라임을 풀로 되돌리는 작업
+    /// </summary>
+    public void ReturnToPool()
+    {
         path.Clear();         // 경로를 다 비우기
         PathLine.ClearPath(); // 라인랜더러 초기화 하고 오브젝트 비활성화
 
-        onDie?.Invoke();
-        onDie = null;
+        transform.SetParent(Pool);  // 부모를 풀로 돌리기
+
         gameObject.SetActive(false);
     }
-
     /// <summary>
     /// 슬라임 초기화용 함수
     /// </summary>

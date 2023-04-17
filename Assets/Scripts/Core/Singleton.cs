@@ -113,8 +113,11 @@ public class Singleton<T> : MonoBehaviour where T : Component
     /// <param name="mode">로드 모드</param>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        PreInitialize();
-        if (mode != LoadSceneMode.Single)
+        if (!initialized)                   // 초기화 되지 않았을 때만 실행
+        {
+            PreInitialize();
+        }
+        if (mode != LoadSceneMode.Additive)
         {
             Initialize();
         }
@@ -125,12 +128,9 @@ public class Singleton<T> : MonoBehaviour where T : Component
     /// </summary>
     protected virtual void PreInitialize()
     {
-        if (!initialized)                   // 초기화 되지 않았을 때만 실행
-        {
-            initialized = true;             // 초기화 되었다고 표시해서 두번 실행되지 않게 하기
-            Scene active = SceneManager.GetActiveScene();   // 현재 씬 가져와서
-            mainSceneIndex = active.buildIndex;             // 인덱스 저장해 놓기
-        }
+        initialized = true;             // 초기화 되었다고 표시해서 두번 실행되지 않게 하기
+        Scene active = SceneManager.GetActiveScene();   // 현재 씬 가져와서
+        mainSceneIndex = active.buildIndex;             // 인덱스 저장해 놓기
     }
 
     /// <summary>

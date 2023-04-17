@@ -74,8 +74,10 @@ public class ObjectPool<T> : MonoBehaviour where T : PoolObject
 
             // 리턴타입이 void이고 파라메터가 없는 람다함수를 onDisable에 등록
             // 델리게이트가 실행되면 readyQueue.Enqueue(comp) 실행
-            comp.onDisable += () => readyQueue.Enqueue(comp);
-
+            comp.onDisable += () =>
+            {
+                readyQueue.Enqueue(comp);
+            };
             OnGenerateObject(comp, i);             // 각 T 타입 별로 필요한 추가 작업 처리
 
             newArray[i] = comp;                 // 풀 배열에 넣고
