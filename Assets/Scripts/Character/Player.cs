@@ -18,6 +18,20 @@ public class Player : MonoBehaviour
     bool isMove = false;      // 현재 이동 중인지 표시
     bool isAttacking = false; // 현재 공격 중인지 표시
     bool isAttackValid = false; // 공격이 유효한 애니메이션 상태인지 표시하는 변수
+    Vector2Int currentMap; // 플레이어가 현재 위치하고 있는 맵의 그리드 좌표
+    Vector2Int CurrentMap
+    {
+        get => currentMap;
+        set
+        {
+            if(value != currentMap)            // 맵을 이동했을 때만
+            {
+                currentMap = value;            // 변경하고
+                onMapMoved?.Invoke(currentMap);// 델리게이트 실행
+            }
+        }
+    }
+    public Action<Vector2Int> onMapMoved;   // 맵이 변경되었을 때 실행될 델리게이트(파라메터: 진입한 맵의 그리드좌표)
 
     Transform attackAreaCenter; // 공격 영역의 중심축
 
@@ -28,6 +42,8 @@ public class Player : MonoBehaviour
 
     // 입력 인풋 액션
     PlayerInputActions inputActions;  
+
+    MapManager mapManager;
 
     private void Awake()
     {
@@ -77,6 +93,10 @@ public class Player : MonoBehaviour
         inputActions.Player.Move.performed -= OnMove;
         inputActions.Player.Disable();
     }
+    private void Start()
+    {
+        mapManager = GameManager.Inst.MapManager;
+    }
 
     private void Update()
     {
@@ -87,6 +107,8 @@ public class Player : MonoBehaviour
     {
         //transform.Translate(Time.fixedDeltaTime * speed * inputDir);
         rigid.MovePosition(rigid.position + Time.fixedDeltaTime * speed * inputDir);    // 이동 처리
+
+        CurrentMap = mapManager.WorldToGird(rigid.position);
     }
 
     private void OnMove(InputAction.CallbackContext context)

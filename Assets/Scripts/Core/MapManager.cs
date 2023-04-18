@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.Windows.Speech;
 
 public class MapManager : MonoBehaviour
 {
@@ -101,20 +104,20 @@ public class MapManager : MonoBehaviour
     {
         foreach (var index in loadWorkComplete)      // 완료된 것은 loadWork에서 제거
         {
-            loadWork.Remove(index);
+            loadWork.RemoveAll((x) => x == index);   // 중복으로 추가된 것들 모두 제거
         }
         loadWorkComplete.Clear();
-        foreach (var index in loadWork)             // 남아있는 loadWork를 로딩 시도
+        foreach (var index in loadWork)              // 남아있는 loadWork를 로딩 시도
         {
             AsyncSceneLoad(index);
         }
 
-        foreach (var index in unloadWorkComplete)  // 완료된 것은 unloadWork에서 제거
+        foreach (var index in unloadWorkComplete)    // 완료된 것은 unloadWork에서 제거
         {
-            unloadWork.Remove(index);
+            unloadWork.RemoveAll((x) => x == index); // 중복으로 추가된 것들 모두 제거
         }
         unloadWorkComplete.Clear();
-        foreach (var index in unloadWork)          // 남아있는 unloadWork를 로딩 해제 시도
+        foreach (var index in unloadWork)            // 남아있는 unloadWork를 로딩 해제 시도
         {
             AsyncSceneUnload(index);
         }
@@ -149,6 +152,14 @@ public class MapManager : MonoBehaviour
         }
 
         // 플레이어 기준으로 플레이어 주변의 맵만 로딩하기
+        Player player = GameManager.Inst.Player;
+        if (player != null)
+        {
+            player.onMapMoved += (gridPos) => RefreshScenes(gridPos.x, gridPos.y); // 맵 변경될때 마다 주변 로딩 요청
+            Vector2Int grid = WorldToGird(player.transform.position);
+            RequestAsyncSceneLoad(grid.x, grid.y);  // 플레이어가 존재하는 맵을 최우선으로 로딩요청
+            RefreshScenes(grid.x, grid.y);          // 주변 위치 로딩 요청
+        }
     }
 
     /// <summary>
@@ -246,11 +257,56 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    void worldToGird()
+    /// <summary>
+    /// 월드 좌표가 어떤 그리드에 있는지 계산하는 함수
+    /// </summary>
+    /// <param name="worldPos">확인할 월드 좌표</param>
+    /// <returns>그리드 좌표(맵기준)</returns>
+    public Vector2Int WorldToGird(Vector3 worldPos)
     {
-        Player player;
-        //player.transform.position = totalOrigin;
-        
+        Vector2 offset = (Vector2)worldPos - totalOrigin;
+        return new Vector2Int((int)(offset.x / mapWidthLenght), (int)(offset.y / mapHeightLenght));
+    }
+    /// <summary>
+    /// 지정된 그리드위치(맵) 주변은 로딩 요청을 하고 그 외는 전부 로딩 해제하는 함수
+    /// </summary>
+    /// <param name="gridX">지정된 그리드X</param>
+    /// <param name="gridY">지정된 그리드Y</param>
+    void RefreshScenes(int gridX, int gridY)
+    {
+        //Debug.Log($"{gridX},{gridY} : 요청");
+
+        // x,y를 포함한 주변 9개 맵은 로딩이 되어야함
+        int startX = Mathf.Max(0, gridX - 1);         // 최소값은 0
+        int endX = Mathf.Min(WidthCount, gridX + 2);  // 최대값은 WidthCount
+        int startY = Mathf.Max(0, gridY - 1);         // 최소값은 0
+        int endY = Mathf.Min(HeightCount, gridY + 2); // 최대값은 HeightCount
+
+        List<Vector2Int> open = new List<Vector2Int>(WidthCount * HeightCount);
+
+        for (int y = startY; y < endY; y++)
+        {
+            for (int x = startX; x < endX; x++)
+            {
+                RequestAsyncSceneLoad(x, y);     // 적정 범위 안에 있는 것을 로드요청하고
+                open.Add(new(x, y));             // 열린 것 목록에 추가
+            }
+        }
+        // 그외는 모두 로딩이 해제되어야 한다.
+
+        Vector2Int target = new Vector2Int();
+        for (int y = 0; y < HeightCount; y++)
+        {
+            for (int x = 0; x < WidthCount; x++)
+            {
+                target.x = x;
+                target.y = y;
+                if (!open.Exists((x) => x == target))  // open에 없으면
+                {
+                    RequestAsyncSceneUnload(x, y);   // 로드 해제 요청
+                }
+            }
+        }
     }
     // 테스트용 함수 -------------------------------------------------------------------------------
 #if UNITY_EDITOR

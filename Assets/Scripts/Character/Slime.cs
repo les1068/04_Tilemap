@@ -25,7 +25,7 @@ public class Slime : PoolObject
 
     public float moveSpeed = 2.0f;      // 이동속도
     GridMap map;                        // 이 슬라임이 있는 그리드 맵
-    List<Vector2Int> path;              // 슬라임이 이동할 경로 
+    List<Vector2Int> path = new List<Vector2Int>();              // 슬라임이 이동할 경로 
     float pathWaitTime = 0.0f;          // 다른 슬라임에 의해 경로가 막혔을 때 기다리는 시간
     const float MaxPathWaitTime = 1.0f; // 경로가 막혔을 때 최대로 기다리는 시간
     PathLine pathLine;                  // 슬라임이 이동할 경로를 그리는 클래스
