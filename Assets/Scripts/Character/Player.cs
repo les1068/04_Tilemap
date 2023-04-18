@@ -7,10 +7,38 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public float maxLifeTime = 10.0f; // 플레이어 최대 수명
+    float lifeTime;       // 플레이어 현재 수명
+    public float LifeTime
+    {
+        get => lifeTime;
+        set
+        {
+            lifeTime = value;
+            if (lifeTime < 0.0f && !isDead)
+            {
+                Die();
+            }
+            else
+            {
+                lifeTime = Mathf.Clamp(value, 0.0f, maxLifeTime);
+            }
+            onLifeTimeChange?.Invoke(lifeTime / maxLifeTime);
+        }
+    }
+    /// <summary>
+    /// 플레이어 수명이 변경될 때 실행될 델리게이트
+    /// </summary>
+    public Action<float> onLifeTimeChange;
+
+    float totalPlayTime;  // 전체 플레이 시간
+    int killCount = 0;    // 잡은 슬라임 수
+    bool isDead = false;  // 플레이어의 생존 여부
+    public Action<float, int> onDie;     // 죽었을 때 실행할 델리게이트
 
     public float speed = 3.0f;           // 플레이어의 이동 속도
     public float attackCoolTime = 1.0f;  // 공격 쿨타임
-    float currentAttackCoolTime = 0.0f;  
+    float currentAttackCoolTime = 0.0f;
 
     Vector2 inputDir;     // 플레이어의 입력 방향
     Vector2 oldInputDir;  // 공격했을 때 저장해 놓은 원래 이동 방향
@@ -24,7 +52,7 @@ public class Player : MonoBehaviour
         get => currentMap;
         set
         {
-            if(value != currentMap)            // 맵을 이동했을 때만
+            if (value != currentMap)            // 맵을 이동했을 때만
             {
                 currentMap = value;            // 변경하고
                 onMapMoved?.Invoke(currentMap);// 델리게이트 실행
@@ -41,7 +69,7 @@ public class Player : MonoBehaviour
     Rigidbody2D rigid;
 
     // 입력 인풋 액션
-    PlayerInputActions inputActions;  
+    PlayerInputActions inputActions;
 
     MapManager mapManager;
 
@@ -55,11 +83,11 @@ public class Player : MonoBehaviour
 
         attackTargetList = new List<Slime>(4);
         EnemySensor sensor = attackAreaCenter.GetComponentInChildren<EnemySensor>();  // 센서 찾고
-        
+
         sensor.onEnemyEnter += (slime) =>
         {
             // 센서 안에 슬라임 들어오면
-            if (isAttackValid )
+            if (isAttackValid)
             {
                 // 공격이 유효한 상태면 바로 죽이기
                 slime.OnAttacked();
@@ -96,11 +124,14 @@ public class Player : MonoBehaviour
     private void Start()
     {
         mapManager = GameManager.Inst.MapManager;
+        LifeTime = maxLifeTime;
     }
 
     private void Update()
     {
         currentAttackCoolTime -= Time.deltaTime;    // 무조건 쿨타임 감소시키기
+        LifeTime -= Time.deltaTime;
+        totalPlayTime += Time.deltaTime;
     }
 
     private void FixedUpdate()
@@ -124,7 +155,7 @@ public class Player : MonoBehaviour
             inputDir = input;    // 입력 방향 저장            
             anim.SetFloat("InputX", inputDir.x);        // 애니메이션 파라메터 설정
             anim.SetFloat("InputY", inputDir.y);
-           
+
             AttackAreaRotate(inputDir);            // 입력회전에 따라 변경
         }
         isMove = true;                              // 이동 중이라고 표시
@@ -153,7 +184,7 @@ public class Player : MonoBehaviour
     {// 공격이 효과가 있을 때 실행
         isAttackValid = true;
 
-        while(attackTargetList.Count > 0)      // 리스트에 슬라임이 남아있으면 계속 반복
+        while (attackTargetList.Count > 0)      // 리스트에 슬라임이 남아있으면 계속 반복
         {
             Slime slime = attackTargetList[0]; // 하나를 꺼내서
             attackTargetList.RemoveAt(0);
@@ -201,7 +232,20 @@ public class Player : MonoBehaviour
         }
 
     }
-    
+    void Die()
+    {
+        lifeTime = 0.0f;
+        isDead = true;
+        onDie?.Invoke(totalPlayTime, killCount);
+    }
+    public void AddLifeTime(float time)
+    {
+        lifeTime += time;
+    }
+    public void AddKillCount()
+    {
+        killCount++;
+    }
 }
 
 

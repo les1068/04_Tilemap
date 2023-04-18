@@ -9,11 +9,8 @@ EditorBuildSettings:
     path: 
     guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/Test/15_LoadingTest.unity
-    guid: af8c58bb9b5d97d45bb4ffff383d55e5
-  - enabled: 1
-    path: Assets/Scenes/Test/14_LoadingSample.unity
-    guid: ac1bc14b4fb137d489678c2cbf482835
+    path: Assets/Scenes/Seemless/Seemless_Base.unity
+    guid: cbba6fadab40cf84485c6785d6d58ae8
   - enabled: 1
     path: Assets/Scenes/Seemless/Seemless_0_0.unity
     guid: 0ac22aa1f8ec9624fa1a82fa6835ec0d

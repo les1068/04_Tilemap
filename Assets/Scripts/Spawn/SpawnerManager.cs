@@ -5,6 +5,9 @@ using UnityEngine.Tilemaps;
 
 public class SpawnerManager : MonoBehaviour
 {
+    Player player;
+    public Player Player => player;
+
     GridMap gridMap;
     Tilemap background;
     Tilemap obstacle;
@@ -23,7 +26,10 @@ public class SpawnerManager : MonoBehaviour
 
         spawners = GetComponentsInChildren<Spawner>();
     }
-
+    private void Start()
+    {
+        player = GameManager.Inst.Player;
+    }
     /// <summary>
     /// 스폰 가능한 영역을 미리 찾아 놓는 함수
     /// </summary>

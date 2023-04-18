@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 public class Slime : PoolObject
 {
-    bool isActivete = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
+    bool isActivate = false;  // 슬라임이 활동 중인지 아닌지 표시하는 변수
     Vector2Int Position => map.WorldToGrid(transform.position);  // 위치 확인용 프로퍼티(그리드 좌표)
     Transform pool = null;
     public Transform Pool
@@ -21,7 +21,8 @@ public class Slime : PoolObject
         }
     }
     public Action onDie;  // 죽었을 때 실행될 델리게이트 (보너스용)
-
+    public bool isShowPathLine = false;
+    public float lifeTimeBonus = 2.0f;  // 이 슬라임이 죽을 때 증가시킬 플레이어의 수명
 
     public float moveSpeed = 2.0f;      // 이동속도
     GridMap map;                        // 이 슬라임이 있는 그리드 맵
@@ -72,34 +73,36 @@ public class Slime : PoolObject
     private void Awake()
     {
         pathLine = GetComponentInChildren<PathLine>();
+        pathLine = GetComponentInChildren<PathLine>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         mainMaterial = spriteRenderer.material;
 
         onPhaseEnd += () =>
         {
-            isActivete = true;     // 페이즈가 끝나면 isActivate를 활성화
-            PathLine.gameObject.SetActive(true);
+            isActivate = true;  // 페이즈가 끝나면 isActivate를 활성화 
+            PathLine.gameObject.SetActive(isShowPathLine);  // 설정에 따라 보이고 안보이고를 결정
         };
-        onDissolveEnd += Die;      // Dissolve가 끝나면 죽게 만들기
+        onDissolveEnd += Die;   // 디졸브가 끝나면 죽게 만들기
 
         OnGoalArrive += () =>
         {
-            //SetDestination(map.GetRandomMovavlePosition());  // 현재 위치가 다시 나와도 상관없음
+            // 현재 위치가 다시 나와도 상관 없을 때
+            //SetDestination(map.GetRandomMovablePosition());   
 
             // 현재 위치가 다시 안나왔으면 좋겠을 때
             Vector2Int pos;
             do
             {
                 pos = map.GetRandomMovavlePosition();
-            } while (pos == Position);  // 랜덤으로 가져온 위치가 현재 위치랑 다른 위치일 때 까지 반복
+            } while (pos == Position);  // 랜덤으로 가져온 위치가 현재 위치랑 다른 위치일 때까지 반복
 
             SetDestination(pos);        // 지정된 위치로 이동하기
         };
     }
     private void OnEnable()
     {
-        isActivete = false;
+        isActivate = false;
         ResetShaderProperties();        // 스폰 될 때 쉐이더 프로퍼티 초기화
         StartCoroutine(StartPhase());   // 쉐이더 시작
     }
@@ -169,9 +172,9 @@ public class Slime : PoolObject
 
     public void OnAttacked()   // 플레이어에게 공격 당하면 실행되는 함수
     {
-        if (isActivete)
+        if (isActivate)
         {
-            isActivete = false;               // 활성화 끄기
+            isActivate = false;               // 활성화 끄기
             StartCoroutine(StartDissolve());  // Dissolve Shader 켜기
         }
     }
@@ -223,7 +226,7 @@ public class Slime : PoolObject
     /// </summary>
     private void MoveUpdate()
     {
-        if (isActivete)  // 활성화 상태일 때만 움직이기
+        if (isActivate)  // 활성화 상태일 때만 움직이기
         {
             // path가 있고 path의 갯수가 0보다 크고, 대기시간이 최대 대기 시간보다 작을 때
             if (path != null && path.Count > 0 && pathWaitTime < MaxPathWaitTime)

@@ -121,9 +121,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c723186a7d80cc40994a7d7ed50d61f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isShowPathLine: 0
+  lifeTimeBonus: 2
   moveSpeed: 2
-  phaseDuration: 1
-  dissolveDuration: 1
+  phaseDuration: 0.5
+  dissolveDuration: 0.5
 --- !u!58 &21778435923786520
 CircleCollider2D:
   m_ObjectHideFlags: 0

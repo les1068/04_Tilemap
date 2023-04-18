@@ -37,12 +37,17 @@ public class Spawner : MonoBehaviour
     /// </summary>
     List<Node> spawnAreaList;
 
+    /// <summary>
+    /// 스포너 매니저
+    /// </summary>
     SpawnerManager manager;
 
+    Player player;
     private void Start()
     {
         manager = GetComponentInParent<SpawnerManager>();
         spawnAreaList = manager.CalcSpawnArea(this);
+        player = GameManager.Inst.Player;
     }
 
     private void Update()
@@ -87,6 +92,9 @@ public class Spawner : MonoBehaviour
             slime.onDie += () =>
             {
                 count--;
+                manager.Player.AddLifeTime(slime.lifeTimeBonus);
+                manager.Player.AddKillCount();
+
             };
             slime.transform.SetParent(transform);
             manager.SlimeInitialize(slime, spawnPos);
