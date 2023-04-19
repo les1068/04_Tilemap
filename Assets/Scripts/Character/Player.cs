@@ -30,9 +30,23 @@ public class Player : MonoBehaviour
     /// 플레이어 수명이 변경될 때 실행될 델리게이트
     /// </summary>
     public Action<float> onLifeTimeChange;
-
+    public Action<float> onKillCount;
     float totalPlayTime;  // 전체 플레이 시간
-    int killCount = 0;    // 잡은 슬라임 수
+    int killCount = int.MinValue;   // killCount 처음에 0으로 설정할 때 작동하게 하려는 목적
+    int KillCount
+    {
+        get => killCount;
+        set
+        {
+            if (killCount != value)
+            {
+                killCount = value;
+                onKillCountChange?.Invoke(killCount);
+            }
+        }
+    }
+    public Action<int> onKillCountChange;
+
     bool isDead = false;  // 플레이어의 생존 여부
     public Action<float, int> onDie;     // 죽었을 때 실행할 델리게이트
 
@@ -125,6 +139,7 @@ public class Player : MonoBehaviour
     {
         mapManager = GameManager.Inst.MapManager;
         LifeTime = maxLifeTime;
+        KillCount = 0;
     }
 
     private void Update()
@@ -236,7 +251,7 @@ public class Player : MonoBehaviour
     {
         lifeTime = 0.0f;
         isDead = true;
-        onDie?.Invoke(totalPlayTime, killCount);
+        onDie?.Invoke(totalPlayTime, KillCount);    // 죽었다고 알림
     }
     public void AddLifeTime(float time)
     {
@@ -244,7 +259,7 @@ public class Player : MonoBehaviour
     }
     public void AddKillCount()
     {
-        killCount++;
+        KillCount++;
     }
 }
 
