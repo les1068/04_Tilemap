@@ -68,8 +68,8 @@ public class Player : MonoBehaviour
         {
             if (value != currentMap)            // 맵을 이동했을 때만
             {
-                currentMap = value;            // 변경하고
-                onMapMoved?.Invoke(currentMap);// 델리게이트 실행
+                currentMap = value;             // 변경하고
+                onMapMoved?.Invoke(currentMap); // 델리게이트 실행
             }
         }
     }

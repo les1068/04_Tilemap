@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 public class LifeTimeText : MonoBehaviour
 {
@@ -19,8 +20,8 @@ public class LifeTimeText : MonoBehaviour
         player.onLifeTimeChange += OnLifeTimeChange;
         maxLifeTime = player.maxLifeTime;
         textUI.text = $"{maxLifeTime:f2} Sec";
-    }
 
+    }
     private void OnLifeTimeChange(float ratio)
     {
         textUI.text = $"{(maxLifeTime * ratio):f2} Sec";
