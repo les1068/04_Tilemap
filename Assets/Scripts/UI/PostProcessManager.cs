@@ -33,28 +33,28 @@ public class PostProcessManager : MonoBehaviour
     }
     private void Update()
     {
-        if (vignette.intensity.value > targetValue)                      // 비네트 정도가 목표치 보다 클때
+        if (vignette.intensity.value > targetValue)    // 비네트 정도가 목표치보다 클때
         {
-            //  vignette.intensity.value가 줄어야한다
+            // vignette.intensity.value가 줄어야 한다.
             vignette.intensity.value -= Time.deltaTime * speed;
-            if (vignette.intensity.value < targetValue)                  // 줄였다가 목표치를 넘어 섰을때
+            if (vignette.intensity.value < targetValue)  // 줄였다가 목표치를 넘어섰을 때
             {
                 vignette.intensity.value = Mathf.Max(0, targetValue);   // targetValue가 되거나 0으로 설정
             }
-            else                                                        // 비네트 정도가 목표치 보다 작을 때
+        }
+        else // 비네트 정도가 목표치보다 작을때
+        {
+            // vignette.intensity.value가 늘어야 한다.
+            vignette.intensity.value += Time.deltaTime * speed;
+            if (vignette.intensity.value > targetValue) // 늘렸다가 목표치를 넘어섰을 때
             {
-                //  vignette.intensity.value가 늘어야한다
-                vignette.intensity.value += Time.deltaTime * speed;
-                if (vignette.intensity.value > targetValue)              // 늘렸다가 목표치를 넘어 섰을때
-                {
-                    vignette.intensity.value = Mathf.Min(1, targetValue);// targetValue가 되거나 1로 설정
-                }
+                vignette.intensity.value = Mathf.Min(1, targetValue);   // targetValue가 되거나 1로 설정
             }
         }
     }
     private void OnLifeTimeChange(float ratio)
     {
         //vignette.intensity.value = 1.0f - ratio;       // 수명 변할 때마다 비네트 정도 변경
-        targetValue = ratio-1;
+        targetValue = 1.0f - ratio;
     }
 }

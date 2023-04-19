@@ -251,15 +251,22 @@ public class Player : MonoBehaviour
     {
         lifeTime = 0.0f;
         isDead = true;
+        inputActions.Player.Disable(); // 입력막기
         onDie?.Invoke(totalPlayTime, KillCount);    // 죽었다고 알림
     }
     public void AddLifeTime(float time)
     {
-        lifeTime += time;
+        if (!isDead)
+        {
+            lifeTime += time;
+        }
     }
     public void AddKillCount()
     {
-        KillCount++;
+        if (!isDead)
+        {
+            KillCount++;
+        }
     }
 }
 
