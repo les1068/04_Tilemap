@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static UnityEditor.Rendering.ShadowCascadeGUI;
-using UnityEditor.Experimental.GraphView;
-
 
 // 전처리기
 // UNITY_EDITOR가 define되어 있으면 #if ~ #endif까지가 컴파일 할 때 포함됨

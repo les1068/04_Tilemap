@@ -28,6 +28,7 @@ public class GameOverPanel : MonoBehaviour
     }
     private void Start()
     {
+        StopAllCoroutines();
         Player player = GameManager.Inst.Player;
         player.onDie += OnPlayerDie;
     }

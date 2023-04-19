@@ -181,7 +181,6 @@ public class Slime : PoolObject
     void Die() // 사망 처리용 함수. Dissolve가 끝날 때 실행됨.
     {
         onDie?.Invoke();
-        onDie = null;
         
         ReturnToPool();
     }
@@ -191,6 +190,7 @@ public class Slime : PoolObject
     /// </summary>
     public void ReturnToPool()
     {
+        onDie = null;
         path.Clear();         // 경로를 다 비우기
         PathLine.ClearPath(); // 라인랜더러 초기화 하고 오브젝트 비활성화
 

@@ -7,7 +7,7 @@ public class Test_Seemless : Test_Base
 {
     public int x;
     public int y;
-
+#if UNITY_EDITOR
     protected override void Test1(InputAction.CallbackContext _)
     {
         MapManager mapManager = GameManager.Inst.MapManager;
@@ -19,4 +19,5 @@ public class Test_Seemless : Test_Base
         mapManager.Test_UnloadScene(x, y);
 
     }
+#endif
 }

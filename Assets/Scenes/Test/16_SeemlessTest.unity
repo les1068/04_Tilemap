@@ -379,7 +379,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5081155067408408050, guid: 7f34f206605c8b543bca22b7342d4358, type: 3}
       propertyPath: poolSize
-      value: 32
+      value: 128
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f34f206605c8b543bca22b7342d4358, type: 3}

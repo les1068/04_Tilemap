@@ -363,8 +363,12 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 4028087610295178505, guid: b072064115ee23f4c937d9427045c9e6, type: 3}
+      propertyPath: speed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4028087610295178505, guid: b072064115ee23f4c937d9427045c9e6, type: 3}
       propertyPath: maxLifeTime
-      value: 3
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4028087610295178506, guid: b072064115ee23f4c937d9427045c9e6, type: 3}
       propertyPath: m_RootOrder
